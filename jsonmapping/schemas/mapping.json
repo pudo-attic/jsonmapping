@@ -99,6 +99,9 @@
               },
               "optional": {
                   "type": "boolean"
+              },
+              "dump": {
+                  "type": "string"
               }
           },
           "additionalProperties": true

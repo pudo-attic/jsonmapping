@@ -1,7 +1,7 @@
 from jsonschema import Draft4Validator, ValidationError
 
 from jsonmapping.visitor import SchemaVisitor
-from jsonmapping.value import extract_value
+from jsonmapping.value import extract_value, flatten_value
 from jsonmapping.util import validate_mapping, RefScoped
 
 
@@ -12,13 +12,14 @@ class Mapper(RefScoped):
     mapping. """
 
     def __init__(self, mapping, resolver, schema=None, bind=None, parent=None,
-                 scope=None, name=None):
+                 data=None, scope=None, name=None):
         self._mapping = mapping.copy()
         self._schema = schema or {}
         self._bind = bind
         self._validator = None
         self._valid = name is not None
         self._children = None
+        self.data = data
         super(Mapper, self).__init__(resolver, self._mapping, name=name,
                                      scope=scope, parent=parent)
 
@@ -51,7 +52,7 @@ class Mapper(RefScoped):
         """ The JSON schema spec matching the current level of the mapping. """
         if self._bind is None:
             schema = self.mapping.get('schema', self._schema)
-            self._bind = SchemaVisitor(schema, self.resolver,
+            self._bind = SchemaVisitor(schema, self.resolver, data=self.data,
                                        scope=self.scope)
         return self._bind
 
@@ -103,12 +104,37 @@ class Mapper(RefScoped):
         elif self.bind.is_value:
             return extract_value(self.mapping, self.bind, data)
 
-    @classmethod
-    def from_mapping(cls, mapping, resolver, scope=None):
-        return cls(mapping, resolver, scope=scope)
+    def flatten(self, data=None):
+        """ Attempt to invert the operation performed by ``apply``. This process
+        is not perfect, since some operation (such as the transformations) are
+        not reversible. """
+        if data is None:
+            data = {}
+
+        if self.bind.is_object:
+            for child in self.children:
+                data = child.flatten(data)
+
+        elif self.bind.is_array:
+            for item in self.bind.items:
+                bind = Mapper(self.mapping, self.resolver,
+                              schema=item.schema, bind=item,
+                              parent=self, name=self.name)
+                data = bind.flatten(data)
+
+        elif self.bind.is_value:
+            key, value = flatten_value(self.mapping, self.bind)
+            if key is not None:
+                data[key] = value
+
+        return data
 
     @classmethod
-    def from_iter(cls, rows, mapping, resolver, scope=None):
+    def from_mapping(cls, mapping, resolver, scope=None, data=None):
+        return cls(mapping, resolver, scope=scope, data=data)
+
+    @classmethod
+    def apply_iter(cls, rows, mapping, resolver, scope=None):
         """ Given an iterable ``rows`` that yield data records, and a
         ``mapping`` which is to be applied to them, return a tuple of
         ``data`` (the generated object graph) and ``err``, a validation
@@ -122,3 +148,13 @@ class Mapper(RefScoped):
             except ValidationError, ve:
                 err = ve
             yield data, err
+
+    @classmethod
+    def flatten_iter(cls, objs, mapping, resolver, scope=None):
+        """ Given an iterable ``rows`` that yield data records, and a
+        ``mapping`` which is to be applied to them, return a tuple of
+        ``data`` (the generated object graph) and ``err``, a validation
+        exception if the resulting data did not match the expected schema. """
+        for obj in objs:
+            mapper = cls.from_mapping(mapping, resolver, scope=scope, data=obj)
+            yield mapper.flatten()

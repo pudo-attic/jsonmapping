@@ -1,8 +1,7 @@
 import six
-from hashlib import sha1
-
-import normality
 import typecast
+
+from jsonmapping.transforms import TRANSFORMS
 
 
 def extract_value(mapping, bind, data):
@@ -24,65 +23,34 @@ def extract_value(mapping, bind, data):
     return empty, convert_value(bind, value)
 
 
-def convert_value(bind, value):
-    """ Type casting. """
-    # TODO: currently, this will only generate the values supported by JSON
-    # schema, but dates and datetimes should be supported as well. Need to
-    # find a good work-around, e.g. based on ``format``.
+def get_type(bind):
+    """ Detect the ideal type for the data, either using the explicit type
+    definition or the format (for date, date-time, not supported by JSON). """
     types = bind.types + [bind.schema.get('format')]
     for type_name in ('date-time', 'date', 'decimal', 'integer', 'boolean',
                       'number', 'string'):
         if type_name in types:
-            try:
-                return typecast.cast(type_name, value)
-            except typecast.ConverterError:
-                pass
-    return value
+            return type_name
+    return 'string'
 
 
-def coalesce(mapping, bind, values):
-    """ Given a list of values, return the first non-null value. """
-    for value in values:
-        if value is not None:
-            return [value]
-    return []
+def convert_value(bind, value):
+    """ Type casting. """
+    type_name = get_type(bind)
+    try:
+        return typecast.cast(type_name, value)
+    except typecast.ConverterError:
+        return value
 
 
-def slugify(mapping, bind, values):
-    """ Transform all values into URL-capable slugs. """
-    return [normality.slugify(v) for v in values]
-
-
-def join(mapping, bind, values):
-    """ Merge all the strings. No space between them? """
-    return [''.join([six.text_type(v) for v in values])]
-
-
-def str_func(name):
-    """ Apply functions like upper(), lower() and strip(). """
-    def func(mapping, bind, values):
-        for v in values:
-            if isinstance(v, six.string_types):
-                v = getattr(v, name)()
-            yield v
-    return func
-
-
-def hash(mapping, bind, values):
-    """ Generate a sha1 for each of the given values. """
-    for v in values:
-        if not isinstance(v, six.string_types):
-            v = six.text_type(v)
-        v = v.encode('utf-8')
-        yield sha1(v).hexdigest()
-
-
-TRANSFORMS = {
-    'coalesce': coalesce,
-    'slugify': slugify,
-    'join': join,
-    'upper': str_func('upper'),
-    'lower': str_func('lower'),
-    'strip': str_func('strip'),
-    'hash': hash
-}
+def flatten_value(mapping, bind):
+    """ Return a value to its original column. """
+    type_name = get_type(bind)
+    value = bind.data
+    try:
+        value = typecast.stringify(type_name, value)
+    except typecast.ConverterError:
+        pass
+    name = mapping.get('columns', [mapping.get('column')])[0]
+    name = mapping.get('dump', name)
+    return name, value

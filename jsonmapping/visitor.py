@@ -75,6 +75,7 @@ class SchemaVisitor(RefScoped):
         if self.data is None:
             yield self._visitor(self, self.schema.get('items'), None,
                                 self.name)
-        for item in self.data:
-            yield self._visitor(self, self.schema.get('items'), item,
-                                self.name)
+        else:
+            for item in self.data:
+                yield self._visitor(self, self.schema.get('items'), item,
+                                    self.name)
