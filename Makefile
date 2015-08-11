@@ -7,12 +7,12 @@ install: env/bin/python upgrade
 env/bin/python:
 	virtualenv env
 	env/bin/pip install --upgrade pip
-	env/bin/pip install nose coverage unicodecsv python-dateutil
+	env/bin/pip install wheel nose coverage unicodecsv python-dateutil
 
 upgrade:
 	env/bin/pip install -e .
 
-upload:
+upload: install
 	env/bin/python setup.py sdist bdist_wheel upload
 
 clean:
