@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://pudo.github.io/graphkit/mapping.json#",
+  "title": "Data mapping",
+  "type": "object",
+  "oneOf": [
+      {"$ref": "#/definitions/mappingObject"},
+      {"$ref": "#/definitions/mappingList"}
+  ],
+  "definitions": {
+      "mappingObject": {
+          "type": "object",
+          "properties": {
+              "mapping": {
+                  "type": "object",
+                  "patternProperties": {
+                      ".*": {
+                          "anyOf": [
+                              {"$ref": "#/definitions/mappingDefault"},
+                              {"$ref": "#/definitions/mappingColumns"},
+                              {"$ref": "#/definitions/mappingColumn"},
+                              {"$ref": "#/definitions/mappingList"},
+                              {"$ref": "#/definitions/mappingObject"}
+                          ]
+                      }
+                  }
+              }
+          },
+          "additionalProperties": true,
+          "required": ["mapping"],
+          "anyOf": [{"$ref": "#/definitions/mappingCommon"}]
+      },
+      "mappingList": {
+          "type": "array",
+          "minLength": 1,
+          "items": {
+              "anyOf": [
+                  {"$ref": "#/definitions/mappingObject"},
+                  {"$ref": "#/definitions/mappingDefault"},
+                  {"$ref": "#/definitions/mappingColumns"},
+                  {"$ref": "#/definitions/mappingColumn"}
+              ]
+          }
+      },
+      "mappingDefault": {
+          "type": "object",
+          "required": ["default"],
+          "additionalProperties": true,
+          "anyOf": [{"$ref": "#/definitions/mappingValue"}]
+      },
+      "mappingColumn": {
+          "type": "object",
+          "properties": {
+              "column": {
+                  "$ref": "#/definitions/column"
+              }
+          },
+          "required": ["column"],
+          "additionalProperties": true,
+          "anyOf": [{"$ref": "#/definitions/mappingValue"}]
+      },
+      "mappingColumns": {
+          "type": "object",
+          "properties": {
+              "columns": {
+                  "type": "array",
+                  "minLength": 1,
+                  "items": {
+                      "$ref": "#/definitions/column"
+                  }
+              }
+          },
+          "required": ["columns"],
+          "additionalProperties": true,
+          "anyOf": [{"$ref": "#/definitions/mappingValue"}]
+      },
+      "mappingValue": {
+          "type": "object",
+          "properties": {
+              "default": {
+                  "type": ["string", "number", "integer", "boolean", "null"]
+              },
+              "transforms": {
+                  "type": "array",
+                  "items": {
+                      "type": "string",
+                      "enum": ["hash", "join", "slugify", "upper", "lower", "strip", "hash", "coalesce"]
+                  }
+              }
+          },
+          "additionalProperties": true,
+          "anyOf": [{"$ref": "#/definitions/mappingCommon"}]
+      },
+      "mappingCommon": {
+          "type": "object",
+          "properties": {
+              "schema": {
+                  "$ref": "http://json-schema.org/draft-04/schema#"
+              },
+              "optional": {
+                  "type": "boolean"
+              }
+          },
+          "additionalProperties": true
+      },
+      "column": {
+          "type": "string"
+      }
+  }
+}

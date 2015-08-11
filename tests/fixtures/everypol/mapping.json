@@ -1,0 +1,69 @@
+{
+    "schema": {
+        "$ref": "http://www.popoloproject.com/schemas/person.json#"
+    },
+    "mapping": {
+        "id": {
+            "column": "id"
+        },
+        "name": {
+            "column": "name"
+        },
+        "image": {
+            "column": "image"
+        },
+        "contact_details": [
+            {
+                "optional": true,
+                "mapping": {
+                    "value": {
+                        "column": "email"
+                    },
+                    "type": {
+                        "default": "email"
+                    }
+                }
+            },
+            {
+                "optional": true,
+                "mapping": {
+                    "value": {
+                        "column": "twitter"
+                    },
+                    "type": {
+                        "default": "twitter"
+                    }
+                }
+            }
+        ],
+        "memberships": [
+            {
+                "mapping": {
+                    "person_id": {
+                        "column": "id"
+                    },
+                    "role": {
+                        "default": "Member of Parliament"
+                    },
+                    "id": {
+                        "columns": ["id", "group_id"],
+                        "transforms": ["strip", "join", "hash"]
+                    },
+                    "organization": {
+                        "mapping": {
+                            "id": {
+                                "column": "group_id",
+                                "default": "no-party",
+                                "transforms": ["coalesce", "slugify"]
+                            },
+                            "name": {
+                                "column": "group",
+                                "default": "No Party"
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
