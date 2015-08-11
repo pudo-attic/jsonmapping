@@ -1,2 +1,2 @@
 include README.md
-recursive-include jsonmapper/schemas *
+recursive-include jsonmapping/schemas *

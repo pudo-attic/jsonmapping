@@ -1,8 +1,8 @@
 from jsonschema import Draft4Validator, ValidationError
 
-from jsonmapper.visitor import SchemaVisitor
-from jsonmapper.value import extract_value
-from jsonmapper.util import validate_mapping, RefScoped
+from jsonmapping.visitor import SchemaVisitor
+from jsonmapping.value import extract_value
+from jsonmapping.util import validate_mapping, RefScoped
 
 
 class Mapper(RefScoped):

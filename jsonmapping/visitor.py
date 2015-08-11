@@ -1,4 +1,4 @@
-from jsonmapper.util import RefScoped
+from jsonmapping.util import RefScoped
 
 
 class SchemaVisitor(RefScoped):

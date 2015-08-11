@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='jsonmapper',
+    name='jsonmapping',
     version='0.2',
     description="Map flat data to structured JSON via a mapping.",
     long_description="",
@@ -19,12 +19,12 @@ setup(
     keywords='schema jsonschema json data conversion',
     author='Friedrich Lindenberg',
     author_email='friedrich@pudo.org',
-    url='http://github.com/pudo/jsonmapper',
+    url='http://github.com/pudo/jsonmapping',
     license='MIT',
     packages=find_packages(exclude=['ez_setup', 'examples', 'test']),
     namespace_packages=[],
     package_data={
-        '': ['jsonmapper/schemas/*.json']
+        '': ['jsonmapping/schemas/*.json']
     },
     include_package_data=True,
     zip_safe=False,

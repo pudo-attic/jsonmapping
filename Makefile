@@ -1,6 +1,6 @@
 
 test: install
-	@env/bin/nosetests --with-coverage --cover-package=jsonmapper --cover-erase
+	@env/bin/nosetests --with-coverage --cover-package=jsonmapping --cover-erase
 
 install: env/bin/python upgrade
 

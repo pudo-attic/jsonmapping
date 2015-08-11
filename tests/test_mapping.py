@@ -1,7 +1,7 @@
 from unittest import TestCase
 import unicodecsv
 
-from jsonmapper import Mapper
+from jsonmapping import Mapper
 
 from .util import resolver, fixture_uri, fixture_file
 
