@@ -48,7 +48,7 @@ membership in an organization).
 
 ## Data Transforms
 
-While ``jsonmapper`` is not a data cleaning tool, it supports some very basic
+While ``jsonmapping`` is not a data cleaning tool, it supports some very basic
 data transformation operations that can be applied on a particular column or
 set of columns. These include:
 
@@ -59,6 +59,38 @@ set of columns. These include:
 * ``lower``: Transform the text to lower case.
 * ``strip``: Remove leading and trailing whitespace.
 * ``hash``: Generate a SHA1 hash of the given value.
+
+## Usage
+
+``jsonmapping`` is available on the Python Package Index:
+
+```bash
+$ pip install jsonmapping
+```
+
+The library can then be used as follows:
+
+```python
+from jsonschema import RefResolver
+from jsonmapping import Mapper
+
+# ... load the mapping ...
+mapping = load_mapping()
+resolver = RefResolver.from_schema(mapping)
+
+# ... grab some data ...
+rows = read_csv()
+objs = []
+
+# This will transform flat data rows into nested JSON objects:
+for obj, err in Mapper.apply_iter(rows, mapping, resolver):
+    if err is None:
+        objs.append(obj)
+
+# And you can reverse the process, even though that is lossy:
+for row in Mapper.flatten_iter(objs, mapping, resolver):
+    print row
+```
 
 ## Tests
 
