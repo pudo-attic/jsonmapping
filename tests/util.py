@@ -6,9 +6,6 @@ from jsonschema import RefResolver  # noqa
 
 fixtures_dir = os.path.join(os.path.dirname(__file__), 'fixtures')
 BASE_URI = 'http://www.popoloproject.com/schemas'
-PERSON_URI = BASE_URI + '/person.json#'
-ORG_URI = BASE_URI + '/organization.json#'
-MEM_URI = BASE_URI + '/membership.json#'
 
 
 def fixture_file(path):
