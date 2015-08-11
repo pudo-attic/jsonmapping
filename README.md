@@ -1,6 +1,4 @@
-# jsonmapping
-
-[![Build Status](https://travis-ci.org/pudo/jsonmapping.svg?branch=master)](https://travis-ci.org/pudo/jsonmapping)
+# jsonmapping [![Build Status](https://travis-ci.org/pudo/jsonmapping.svg?branch=master)](https://travis-ci.org/pudo/jsonmapping)
 
 To transform flat data structures into nested object graphs matching JSON
 schema definitions, this package defines a mapping language. It defines how
