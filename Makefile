@@ -10,7 +10,7 @@ env/bin/python:
 	env/bin/pip install wheel nose coverage unicodecsv python-dateutil
 	env/bin/pip install -e .
 
-upload: install
+upload: clean install
 	env/bin/python setup.py sdist bdist_wheel upload
 
 clean:

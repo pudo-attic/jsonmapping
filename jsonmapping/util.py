@@ -30,12 +30,16 @@ class RefScoped(object):
 
     @property
     def path(self):
-        if self.id:
+        if self.id is not None:
             return self.id
-        if self.parent and self.name:
+        if self.parent:
             path = self.parent.path
-            sep = '/' if '#' in path else '#/'
-            return '%s%s%s' % (path, sep, self.name)
+            if self.name:
+                if '#' in path:
+                    return path + '#/' + self.name
+                else:
+                    return path + '/' + self.name
+            return path
 
     @property
     def scope(self):
