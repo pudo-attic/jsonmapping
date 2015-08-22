@@ -35,7 +35,7 @@ class RefScoped(object):
         if self.parent:
             path = self.parent.path
             if self.name:
-                if '#' in path:
+                if '#' not in path:
                     return path + '#/' + self.name
                 else:
                     return path + '/' + self.name
