@@ -2,7 +2,6 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "id": "http://pudo.github.io/graphkit/mapping.json#",
   "title": "Data mapping",
-  "type": "object",
   "oneOf": [
       {"$ref": "#/definitions/mappingObject"},
       {"$ref": "#/definitions/mappingList"}

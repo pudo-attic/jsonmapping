@@ -80,7 +80,10 @@ class Mapper(RefScoped):
         indicates whether any values were mapped in the child nodes of the
         mapping. It is used to skip optional branches of the object graph. """
         if self.bind.is_object:
-            obj, obj_empty = {}, True
+            obj = {}
+            if self.parent is None:
+                obj['$schema'] = self.bind.path
+            obj_empty = True
             for child in self.children:
                 empty, value = child.apply(data)
                 if empty and child.optional:
