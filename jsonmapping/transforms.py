@@ -18,8 +18,8 @@ def slugify(mapping, bind, values):
 
 
 def join(mapping, bind, values):
-    """ Merge all the strings. No space between them? """
-    return [''.join([six.text_type(v) for v in values])]
+    """ Merge all the strings. Put space between them. """
+    return [' '.join([six.text_type(v) for v in values])]
 
 
 def str_func(name):
