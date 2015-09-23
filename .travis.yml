@@ -12,6 +12,6 @@ install:
 before_script:
     - nosetests --version
 script:
-    - nosetests --with-coverage --cover-package=babbage
+    - nosetests --with-coverage --cover-package=jsonmapping
 after_success:
     - coveralls
