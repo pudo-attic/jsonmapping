@@ -4,7 +4,8 @@
     },
     "mapping": {
         "id": {
-            "column": "id"
+            "column": "id",
+            "transforms": ["latinize", "slugify"]
         },
         "name": {
             "column": "name"
@@ -54,7 +55,7 @@
                             "id": {
                                 "column": "group_id",
                                 "default": "no-party",
-                                "transforms": ["coalesce", "slugify"]
+                                "transforms": ["latinize", "slugify"]
                             },
                             "name": {
                                 "column": "group",

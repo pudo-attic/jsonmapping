@@ -1,5 +1,6 @@
 import six
 from hashlib import sha1
+from unidecode import unidecode
 
 import normality
 
@@ -15,6 +16,11 @@ def coalesce(mapping, bind, values):
 def slugify(mapping, bind, values):
     """ Transform all values into URL-capable slugs. """
     return [normality.slugify(v) for v in values]
+
+
+def latinize(mapping, bind, values):
+    """ Transliterate a given string into the latin alphabet. """
+    return [unidecode(v) for v in values]
 
 
 def join(mapping, bind, values):
@@ -44,6 +50,7 @@ def hash(mapping, bind, values):
 TRANSFORMS = {
     'coalesce': coalesce,
     'slugify': slugify,
+    'latinize': latinize,
     'join': join,
     'upper': str_func('upper'),
     'lower': str_func('lower'),

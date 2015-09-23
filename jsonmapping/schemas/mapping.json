@@ -83,7 +83,8 @@
                   "type": "array",
                   "items": {
                       "type": "string",
-                      "enum": ["hash", "join", "slugify", "upper", "lower", "strip", "hash", "coalesce"]
+                      "enum": ["hash", "join", "slugify", "upper", "lower",
+                               "strip", "hash", "coalesce", "latinize"]
                   }
               }
           },
