@@ -20,12 +20,12 @@ def slugify(mapping, bind, values):
 
 def latinize(mapping, bind, values):
     """ Transliterate a given string into the latin alphabet. """
-    return [unidecode(v) for v in values]
+    return [unidecode(v) for v in values if v is not None]
 
 
 def join(mapping, bind, values):
     """ Merge all the strings. Put space between them. """
-    return [' '.join([six.text_type(v) for v in values])]
+    return [' '.join([six.text_type(v) for v in values if v is not None])]
 
 
 def str_func(name):
@@ -41,6 +41,8 @@ def str_func(name):
 def hash(mapping, bind, values):
     """ Generate a sha1 for each of the given values. """
     for v in values:
+        if v is None:
+            continue
         if not isinstance(v, six.string_types):
             v = six.text_type(v)
         v = v.encode('utf-8')
