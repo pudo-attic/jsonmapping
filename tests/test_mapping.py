@@ -40,6 +40,8 @@ class MappingTestCase(TestCase):
         assert len(mapped) == 397, len(mapped)
         row0, err0 = mapped[0]
         assert isinstance(row0, dict), row0
+        print row0
+        assert row0['id'].startswith('popolo:person:'), row0
 
     def test_sa_term26_flatten(self):
         mapping, uri = fixture_uri('everypol/mapping.json')

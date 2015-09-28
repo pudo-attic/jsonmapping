@@ -14,10 +14,12 @@ def extract_value(mapping, bind, data):
         # any added transforms must also be added to the schema.
         values = list(TRANSFORMS[transform](mapping, bind, values))
 
+    format_str = mapping.get('format')
     value = values[0] if len(values) else None
-    empty = value is None or \
-        (isinstance(value, six.string_types) and not len(value.strip()))
+    if not is_empty(format_str):
+        value = format_str % values
 
+    empty = is_empty(value)
     if empty:
         value = mapping.get('default') or bind.schema.get('default')
     return empty, convert_value(bind, value)
@@ -54,3 +56,11 @@ def flatten_value(mapping, bind):
     name = mapping.get('columns', [mapping.get('column')])[0]
     name = mapping.get('dump', name)
     return name, value
+
+
+def is_empty(value):
+    if value is None:
+        return True
+    if isinstance(value, six.string_types):
+        return len(value.strip()) < 1
+    return False
