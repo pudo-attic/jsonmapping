@@ -1,8 +1,11 @@
+import re
 import six
 from hashlib import sha1
 from unidecode import unidecode
 
 import normality
+
+COLLAPSE = re.compile(r'\s+')
 
 
 def coalesce(mapping, bind, values):
@@ -49,9 +52,19 @@ def hash(mapping, bind, values):
         yield sha1(v).hexdigest()
 
 
+def clean(mapping, bind, values):
+    """ Perform several types of string cleaning for titles etc.. """
+    categories = {'C': ' '}
+    for value in values:
+        yield normality.normalize(value, lowercase=False, collapse=True,
+                                  decompose=False,
+                                  replace_categories=categories)
+
+
 TRANSFORMS = {
     'coalesce': coalesce,
     'slugify': slugify,
+    'clean': clean,
     'latinize': latinize,
     'join': join,
     'upper': str_func('upper'),

@@ -84,7 +84,8 @@
                   "items": {
                       "type": "string",
                       "enum": ["hash", "join", "slugify", "upper", "lower",
-                               "strip", "hash", "coalesce", "latinize"]
+                               "strip", "hash", "coalesce", "latinize",
+                               "clean"]
                   }
               }
           },
