@@ -17,7 +17,7 @@ def extract_value(mapping, bind, data):
     format_str = mapping.get('format')
     value = values[0] if len(values) else None
     if not is_empty(format_str):
-        value = format_str % values
+        value = format_str % tuple('' if v is None else v for v in values)
 
     empty = is_empty(value)
     if empty:

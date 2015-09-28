@@ -18,12 +18,18 @@ def coalesce(mapping, bind, values):
 
 def slugify(mapping, bind, values):
     """ Transform all values into URL-capable slugs. """
-    return [normality.slugify(v) for v in values]
+    for value in values:
+        if isinstance(value, six.string_types):
+            value = normality.slugify(value)
+        yield value
 
 
 def latinize(mapping, bind, values):
     """ Transliterate a given string into the latin alphabet. """
-    return [unidecode(v) for v in values if v is not None]
+    for v in values:
+        if isinstance(v, six.string_types):
+            v = unidecode(v)
+        yield v
 
 
 def join(mapping, bind, values):
@@ -48,17 +54,19 @@ def hash(mapping, bind, values):
             continue
         if not isinstance(v, six.string_types):
             v = six.text_type(v)
-        v = v.encode('utf-8')
-        yield sha1(v).hexdigest()
+        v = sha1(v.encode('utf-8')).hexdigest()
+        yield
 
 
 def clean(mapping, bind, values):
     """ Perform several types of string cleaning for titles etc.. """
     categories = {'C': ' '}
     for value in values:
-        yield normality.normalize(value, lowercase=False, collapse=True,
-                                  decompose=False,
-                                  replace_categories=categories)
+        if isinstance(value, six.string_types):
+            value = normality.normalize(value, lowercase=False, collapse=True,
+                                        decompose=False,
+                                        replace_categories=categories)
+        yield value
 
 
 TRANSFORMS = {
