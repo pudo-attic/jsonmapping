@@ -12,7 +12,14 @@ def generate_schema_mapping(resolver, schema_uri):
 
 def _generate_schema_mapping(visitor, path):
     if visitor.is_object:
-        mapping = {'type': 'nested', 'properties': {}}
+        mapping = {
+            'type': 'nested',
+            '_id': {'path': 'id'},
+            'properties': {
+                '$schema': {'type': 'string', 'index': 'not_analyzed'},
+                'id': {'type': 'string', 'index': 'not_analyzed'}
+            }
+        }
         if not visitor.parent:
             mapping['type'] = 'object'
         if visitor.path in path:
@@ -33,4 +40,9 @@ def _generate_schema_mapping(visitor, path):
             type_name = 'long'
         if 'boolean' in visitor.types:
             type_name = 'boolean'
-        return {'type': type_name, 'index': 'not_analyzed'}
+        mapping = {'type': type_name, 'index': 'not_analyzed'}
+        format_ = visitor.schema.get('format')
+        if format_ and format_ in ('date-time', 'datetime', 'date'):
+            mapping['type'] = 'date'
+            mapping['format'] = 'dateOptionalTime'
+        return mapping
