@@ -11,9 +11,9 @@ def csv_mapper(fileobj, mapping, resolver=None, scope=None):
     iterate over all rows of the data and map them to a JSON schema using the
     mapping instructions in ``mapping``. """
     reader = unicodecsv.DictReader(fileobj)
-    for (row, err) in Mapper.apply_iter(reader, mapping, resolver=resolver,
-                                        scope=scope):
-        yield (row, err)
+    for row in Mapper.apply_iter(reader, mapping, resolver=resolver,
+                                 scope=scope):
+        yield row
 
 
 class MappingTestCase(TestCase):
@@ -28,9 +28,8 @@ class MappingTestCase(TestCase):
         mapped = list(csv_mapper(csvobj, mapping, resolver=resolver,
                                  scope=uri))
         assert len(mapped) == 255, len(mapped)
-        row0, err0 = mapped[0]
+        row0 = mapped[0]
         assert isinstance(row0, dict), row0
-        assert err0 is not None, err0
 
     def test_sa_term26_mapping(self):
         mapping, uri = fixture_uri('everypol/mapping.json')
@@ -38,7 +37,7 @@ class MappingTestCase(TestCase):
         csvobj = fixture_file('everypol/term-26.csv')
         mapped = list(csv_mapper(csvobj, mapping, resolver=resolver))
         assert len(mapped) == 397, len(mapped)
-        row0, err0 = mapped[0]
+        row0 = mapped[0]
         assert isinstance(row0, dict), row0
         print row0
         assert row0['id'].startswith('popolo:person:'), row0
@@ -48,7 +47,6 @@ class MappingTestCase(TestCase):
         resolver.store[uri] = mapping
         csvobj = fixture_file('everypol/term-26.csv')
         mapped = list(csv_mapper(csvobj, mapping, resolver))
-        objs = [o for (o, err) in mapped]
-        for row in Mapper.flatten_iter(objs, mapping, resolver):
+        for row in Mapper.flatten_iter(mapped, mapping, resolver):
             assert 'group_id' in row, row
             assert 'email' in row, row

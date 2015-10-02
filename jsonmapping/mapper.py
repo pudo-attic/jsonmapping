@@ -16,7 +16,6 @@ class Mapper(RefScoped):
         self._mapping = mapping.copy()
         self._schema = schema or {}
         self._bind = bind
-        self._validator = None
         self._valid = name is not None
         self._children = None
         self.data = data
@@ -39,13 +38,6 @@ class Mapper(RefScoped):
         """ If optional, the object will be skipped if no values exist in
         source data to fill it up. """
         return self.mapping.get('optional', False)
-
-    @property
-    def validator(self):
-        if self._validator is None:
-            self._validator = Draft4Validator(self.bind.schema,
-                                              resolver=self.resolver)
-        return self._validator
 
     @property
     def bind(self):
@@ -144,13 +136,8 @@ class Mapper(RefScoped):
         exception if the resulting data did not match the expected schema. """
         mapper = cls.from_mapping(mapping, resolver, scope=scope)
         for row in rows:
-            err = None
             _, data = mapper.apply(row)
-            try:
-                mapper.validator.validate(data)
-            except ValidationError, ve:
-                err = ve
-            yield data, err
+            yield data
 
     @classmethod
     def flatten_iter(cls, objs, mapping, resolver, scope=None):
