@@ -1,52 +1,57 @@
-from jsonmapping.util import RefScoped
 
 
-class SchemaVisitor(RefScoped):
+class SchemaVisitor(object):
     """ A schema visitor traverses a JSON schema with associated data and
     allows the user to perform any transformations on the data that they
     wish. """
 
     def __init__(self, schema, resolver, data=None, name=None, parent=None,
-                 state=None, scope=None):
-        self._schema = schema.copy()
+                 scope=None):
+        self.name = name
+        self.parent = parent
+        self.resolver = resolver
+
+        if '$ref' in schema:
+            with resolver.in_scope(scope):
+                uri, schema = resolver.resolve(schema.get('$ref'))
+
+        self.schema = schema
+        self.id = schema.get('id')
+        self.types = schema.get('type', 'object')
+        if not isinstance(self.types, list):
+            self.types = [self.types]
+        self.is_object = 'object' in self.types
+        self.is_array = 'array' in self.types
+        self.is_value = not (self.is_object or self.is_array)
+
         self.data = data
-        self.state = state
-        super(SchemaVisitor, self).__init__(resolver, self._schema, name=name,
-                                            scope=scope, parent=parent)
+
+        if self.id:
+            self.scope = self.id
+        elif self.parent:
+            self.scope = self.parent.scope
+        else:
+            self.scope = scope
 
     def _visitor(self, parent, schema, data, name):
         return type(self)(schema, self.resolver, data=data, name=name,
-                          parent=parent, state=self.state)
+                          parent=parent)
 
     def match(self, name):
         return self.name == name
 
     @property
-    def schema(self):
-        if '$ref' in self._schema:
-            with self.resolver.in_scope(self.scope):
-                uri, data = self.resolver.resolve(self._schema.pop('$ref'))
-                self._schema.update(data)
-        return self._schema
-
-    @property
-    def types(self):
-        types = self.schema.get('type', 'object')
-        if not isinstance(types, list):
-            types = [types]
-        return types
-
-    @property
-    def is_object(self):
-        return 'object' in self.types
-
-    @property
-    def is_array(self):
-        return 'array' in self.types
-
-    @property
-    def is_value(self):
-        return not (self.is_object or self.is_array)
+    def path(self):
+        if self.id is not None:
+            return self.id
+        if self.parent:
+            path = self.parent.path
+            if self.name:
+                if '#' not in path:
+                    return path + '#/' + self.name
+                else:
+                    return path + '/' + self.name
+            return path
 
     @property
     def properties(self):
