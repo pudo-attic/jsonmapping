@@ -45,19 +45,6 @@ def convert_value(bind, value):
         return value
 
 
-def flatten_value(mapping, bind):
-    """ Return a value to its original column. """
-    type_name = get_type(bind)
-    value = bind.data
-    try:
-        value = typecast.stringify(type_name, value)
-    except typecast.ConverterError:
-        pass
-    name = mapping.get('columns', [mapping.get('column')])[0]
-    name = mapping.get('dump', name)
-    return name, value
-
-
 def is_empty(value):
     if value is None:
         return True

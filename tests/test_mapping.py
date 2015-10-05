@@ -41,12 +41,3 @@ class MappingTestCase(TestCase):
         assert isinstance(row0, dict), row0
         print row0
         assert row0['id'].startswith('popolo:person:'), row0
-
-    def test_sa_term26_flatten(self):
-        mapping, uri = fixture_uri('everypol/mapping.json')
-        resolver.store[uri] = mapping
-        csvobj = fixture_file('everypol/term-26.csv')
-        mapped = list(csv_mapper(csvobj, mapping, resolver))
-        for row in Mapper.flatten_iter(mapped, mapping, resolver):
-            assert 'group_id' in row, row
-            assert 'email' in row, row

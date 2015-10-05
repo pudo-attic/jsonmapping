@@ -86,10 +86,6 @@ objs = []
 for obj, err in Mapper.apply_iter(rows, mapping, resolver):
     if err is None:
         objs.append(obj)
-
-# And you can reverse the process, even though that is lossy:
-for row in Mapper.flatten_iter(objs, mapping, resolver):
-    print row
 ```
 
 ## Tests
