@@ -10,6 +10,22 @@ def generate_schema_mapping(resolver, schema_uri):
     return _generate_schema_mapping(visitor, set())
 
 
+def _generator_field_mapping(visitor):
+    type_name = 'string'
+    if 'number' in visitor.types:
+        type_name = 'float'
+    if 'integer' in visitor.types:
+        type_name = 'long'
+    if 'boolean' in visitor.types:
+        type_name = 'boolean'
+    mapping = {'type': type_name, 'index': 'not_analyzed'}
+    format_ = visitor.schema.get('format')
+    if format_ and format_ in ('date-time', 'datetime', 'date'):
+        mapping['type'] = 'date'
+        mapping['format'] = 'dateOptionalTime'
+    return mapping
+
+
 def _generate_schema_mapping(visitor, path):
     if visitor.is_object:
         mapping = {
@@ -30,19 +46,6 @@ def _generate_schema_mapping(visitor, path):
             mapping['properties'][prop.name] = prop_mapping
         return mapping
     elif visitor.is_array:
-        for vis in visitor.items:
-            return _generate_schema_mapping(vis, path)
+        return _generate_schema_mapping(visitor.items, path)
     else:
-        type_name = 'string'
-        if 'number' in visitor.types:
-            type_name = 'float'
-        if 'integer' in visitor.types:
-            type_name = 'long'
-        if 'boolean' in visitor.types:
-            type_name = 'boolean'
-        mapping = {'type': type_name, 'index': 'not_analyzed'}
-        format_ = visitor.schema.get('format')
-        if format_ and format_ in ('date-time', 'datetime', 'date'):
-            mapping['type'] = 'date'
-            mapping['format'] = 'dateOptionalTime'
-        return mapping
+        return _generator_field_mapping(visitor)
