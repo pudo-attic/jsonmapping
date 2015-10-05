@@ -22,8 +22,6 @@ class Mapper(object):
         if self.visitor.parent is None:
             validate_mapping(self.mapping) is not None
 
-        self._children = None
-
     @property
     def optional(self):
         """ If optional, the object will be skipped if no values exist in
@@ -32,19 +30,23 @@ class Mapper(object):
 
     @property
     def children(self):
-        if not self.visitor.is_object:
-            return []
-        if self._children is None:
-            self._children = []
-            for name, mappings in self.mapping.get('mapping', {}).items():
-                if hasattr(mappings, 'items'):
-                    mappings = [mappings]
-                for mapping in mappings:
-                    for prop in self.visitor.properties:
-                        if prop.match(name):
-                            mapper = Mapper(mapping, self.visitor.resolver,
-                                            visitor=prop)
-                            self._children.append(mapper)
+        if not hasattr(self, '_children'):
+            if self.visitor.is_array:
+                self._children = Mapper(self.mapping, self.visitor.resolver,
+                                        visitor=self.visitor.items)
+            elif self.visitor.is_object:
+                self._children = []
+                for name, mappings in self.mapping.get('mapping', {}).items():
+                    if hasattr(mappings, 'items'):
+                        mappings = [mappings]
+                    for mapping in mappings:
+                        for prop in self.visitor.properties:
+                            if prop.match(name):
+                                mapper = Mapper(mapping, self.visitor.resolver,
+                                                visitor=prop)
+                                self._children.append(mapper)
+            else:
+                self._children = None
         return self._children
 
     def apply(self, data):
@@ -70,11 +72,10 @@ class Mapper(object):
             return obj_empty, obj
 
         elif self.visitor.is_array:
-            for item in self.visitor.items:
-                mapper = Mapper(self.mapping, self.visitor.resolver,
-                                visitor=item)
-                empty, value = mapper.apply(data)
+            for item in data.get(self.visitor.name, []):
+                empty, value = self.children.apply(item)
                 return empty, [value]
+            return True, []
 
         elif self.visitor.is_value:
             return extract_value(self.mapping, self.visitor, data)
