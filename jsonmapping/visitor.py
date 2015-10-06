@@ -12,7 +12,8 @@ class SchemaVisitor(object):
 
         if '$ref' in schema:
             with resolver.in_scope(scope):
-                uri, schema = resolver.resolve(schema.get('$ref'))
+                uri, schema_ = resolver.resolve(schema.get('$ref'))
+                schema.update(schema_)
 
         self.schema = schema
         self.id = schema.get('id')

@@ -72,10 +72,8 @@ class Mapper(object):
             return obj_empty, obj
 
         elif self.visitor.is_array:
-            for item in data.get(self.visitor.name, []):
-                empty, value = self.children.apply(item)
-                return empty, [value]
-            return True, []
+            empty, value = self.children.apply(data)
+            return empty, [value]
 
         elif self.visitor.is_value:
             return extract_value(self.mapping, self.visitor, data)

@@ -54,8 +54,7 @@ def hash(mapping, bind, values):
             continue
         if not isinstance(v, six.string_types):
             v = six.text_type(v)
-        v = sha1(v.encode('utf-8')).hexdigest()
-        yield
+        yield sha1(v.encode('utf-8')).hexdigest()
 
 
 def clean(mapping, bind, values):
