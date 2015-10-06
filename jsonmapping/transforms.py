@@ -8,6 +8,13 @@ import normality
 COLLAPSE = re.compile(r'\s+')
 
 
+def transliterate(text):
+    """ Utility to properly transliterate text. """
+    text = unidecode(six.text_type(text))
+    text = text.replace('@', 'a')
+    return text
+
+
 def coalesce(mapping, bind, values):
     """ Given a list of values, return the first non-null value. """
     for value in values:
@@ -20,6 +27,7 @@ def slugify(mapping, bind, values):
     """ Transform all values into URL-capable slugs. """
     for value in values:
         if isinstance(value, six.string_types):
+            value = transliterate(value)
             value = normality.slugify(value)
         yield value
 
@@ -28,7 +36,7 @@ def latinize(mapping, bind, values):
     """ Transliterate a given string into the latin alphabet. """
     for v in values:
         if isinstance(v, six.string_types):
-            v = unidecode(v)
+            v = transliterate(v)
         yield v
 
 
