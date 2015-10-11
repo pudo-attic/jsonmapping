@@ -82,10 +82,7 @@
               "transforms": {
                   "type": "array",
                   "items": {
-                      "type": "string",
-                      "enum": ["hash", "join", "slugify", "upper", "lower",
-                               "strip", "hash", "coalesce", "latinize",
-                               "clean"]
+                      "type": "string"
                   }
               }
           },
@@ -96,7 +93,7 @@
           "type": "object",
           "properties": {
               "schema": {
-                  "$ref": "http://json-schema.org/draft-04/schema#"
+                  "type": "object"
               },
               "optional": {
                   "type": "boolean"
