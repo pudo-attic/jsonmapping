@@ -1,3 +1,4 @@
+from copy import deepcopy
 
 
 class SchemaVisitor(object):
@@ -14,6 +15,8 @@ class SchemaVisitor(object):
         if '$ref' in schema:
             with resolver.in_scope(scope):
                 uri, schema_ = resolver.resolve(schema.get('$ref'))
+                schema = deepcopy(schema)
+                schema.pop('$ref', None)
                 schema.update(schema_)
 
         self.schema = schema
