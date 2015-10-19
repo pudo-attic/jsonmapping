@@ -7,7 +7,8 @@
         "mappingModel": {
             "mapping": {
                 "name": {
-                    "column": "country"
+                    "columns": ["euname", "country"],
+                    "transforms": ["coalesce", "clean"]
                 },
                 "iso2": {
                     "column": "iso2"

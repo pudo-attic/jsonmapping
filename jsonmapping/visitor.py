@@ -6,6 +6,7 @@ class SchemaVisitor(object):
     wish. """
 
     def __init__(self, schema, resolver, name=None, parent=None, scope=None):
+        self.cls = type(self)
         self.name = name
         self.parent = parent
         self.resolver = resolver
@@ -32,9 +33,6 @@ class SchemaVisitor(object):
         else:
             self.scope = scope
 
-    def _visitor(self, parent, schema, name):
-        return type(self)(schema, self.resolver, name=name, parent=parent)
-
     def match(self, name):
         return self.name == name
 
@@ -53,8 +51,6 @@ class SchemaVisitor(object):
 
     @property
     def properties(self):
-        # This will have different results depending on whether data is given
-        # or not, due to pattern properties.
         if not self.is_object:
             return []
 
@@ -62,14 +58,16 @@ class SchemaVisitor(object):
             self._properties = []
             for inheritance_rule in ('anyOf', 'allOf', 'oneOf'):
                 for schema in self.schema.get(inheritance_rule, []):
-                    visitor = self._visitor(self.parent, schema, self.name)
+                    visitor = self.cls(schema, self.resolver, name=self.name,
+                                       parent=self.parent)
                     for prop in visitor.properties:
                         self._properties.append(prop)
 
             for name, schema in self.schema.get('properties', {}).items():
-                self._properties.append(self._visitor(self, schema, name))
+                self._properties.append(self.cls(schema, self.resolver,
+                                                 name=name, parent=self))
 
-            # TODO: patternProperties
+            # TODO: patternProperties - probably can't support them fully.
         return self._properties
 
     @property
@@ -78,5 +76,6 @@ class SchemaVisitor(object):
             return
         if not hasattr(self, '_items'):
             schema = self.schema.get('items')
-            self._items = self._visitor(self, schema, self.name)
+            self._items = self.cls(schema, self.resolver, name=self.name,
+                                   parent=self)
         return self._items
