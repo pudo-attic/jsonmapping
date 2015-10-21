@@ -84,7 +84,7 @@ class StatementsVisitor(SchemaVisitor):
                 yield res
 
     # Clever Method Names Award, 2014 and two years running
-    def objectify(self, load, node, depth=3, path=None):
+    def objectify(self, load, node, depth=2, path=None):
         """ Given a node ID, return an object the information available about
         this node. This accepts a loader function as it's first argument, which
         is expected to return all tuples of (predicate, object, source) for
@@ -93,8 +93,12 @@ class StatementsVisitor(SchemaVisitor):
             path = set()
 
         if self.is_object:
+            if depth < 1:
+                return
             return self._objectify_object(load, node, depth, path)
         elif self.is_array:
+            if depth < 1:
+                return
             return [self.items.objectify(load, node, depth, path)]
         else:
             return node
@@ -113,17 +117,16 @@ class StatementsVisitor(SchemaVisitor):
         }
         for (p, o, src) in load(node):
             prop = self.get_property(p)
-            if prop is None or next_depth <= 0 or o in path:
-                continue
-
-            # This is slightly odd but yields purty objects:
-            if next_depth <= 1 and (prop.is_array or prop.is_object):
+            if prop is None or o in path:
                 continue
 
             if src not in obj['$sources']:
                 obj['$sources'].append(src)
 
             value = prop.objectify(load, o, next_depth, sub_path)
+            if value is None:
+                continue
+
             if prop.is_array and prop.name in obj:
                 obj[prop.name].extend(value)
             else:
