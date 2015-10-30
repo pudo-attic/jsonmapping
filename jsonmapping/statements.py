@@ -113,12 +113,17 @@ class StatementsVisitor(SchemaVisitor):
         obj = {
             self.subject: node,
             '$schema': self.path,
-            '$sources': []
+            '$sources': [],
+            '$attrcount': 0,
+            '$linkcount': 0,
         }
-        for (p, o, src) in load(node):
+        for (p, o, t, src) in load(node):
             prop = self.get_property(p)
             if prop is None or o in path:
                 continue
+            obj['$attrcount'] += 1
+            if t == TYPE_LINK:
+                obj['$linkcount'] += 1
 
             if src not in obj['$sources']:
                 obj['$sources'].append(src)

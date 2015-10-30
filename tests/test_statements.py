@@ -7,7 +7,7 @@ from .util import resolver, fixture_uri
 
 def load_maker(stmts):
     def _load(subject):
-        return [(p, o, 'foo') for (s, p, o, t) in stmts if s == subject]
+        return [(p, o, t, 'foo') for (s, p, o, t) in stmts if s == subject]
     return _load
 
 
