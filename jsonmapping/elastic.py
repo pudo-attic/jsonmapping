@@ -3,11 +3,11 @@ matching ElasticSearch schema, given a JSON Schema descriptor. """
 from jsonmapping.visitor import SchemaVisitor
 
 
-def generate_schema_mapping(resolver, schema_uri):
+def generate_schema_mapping(resolver, schema_uri, depth=1):
     """ Try and recursively iterate a JSON schema and to generate an ES mapping
     that encasulates it. """
     visitor = SchemaVisitor({'$ref': schema_uri}, resolver)
-    return _generate_schema_mapping(visitor, set())
+    return _generate_schema_mapping(visitor, set(), depth)
 
 
 def _generator_field_mapping(visitor):
@@ -26,7 +26,7 @@ def _generator_field_mapping(visitor):
     return mapping
 
 
-def _generate_schema_mapping(visitor, path):
+def _generate_schema_mapping(visitor, path, depth):
     if visitor.is_object:
         mapping = {
             'type': 'nested',
@@ -38,14 +38,14 @@ def _generate_schema_mapping(visitor, path):
         }
         if not visitor.parent:
             mapping['type'] = 'object'
-        if visitor.path in path:
+        if visitor.path in path or not depth:
             return mapping
         sub_path = path.union([visitor.path])
         for prop in visitor.properties:
-            prop_mapping = _generate_schema_mapping(prop, sub_path)
+            prop_mapping = _generate_schema_mapping(prop, sub_path, depth - 1)
             mapping['properties'][prop.name] = prop_mapping
         return mapping
     elif visitor.is_array:
-        return _generate_schema_mapping(visitor.items, path)
+        return _generate_schema_mapping(visitor.items, path, depth - 1)
     else:
         return _generator_field_mapping(visitor)
