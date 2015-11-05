@@ -7,7 +7,15 @@ from .util import resolver, fixture_uri
 
 def load_maker(stmts):
     def _load(subject):
-        return [(p, o, t, 'foo') for (s, p, o, t) in stmts if s == subject]
+        for (s, p, o, t) in stmts:
+            if s == subject:
+                yield {
+                    'subject': s,
+                    'predicate': p,
+                    'object': o,
+                    'type': t,
+                    'source': 'foo'
+                }
     return _load
 
 

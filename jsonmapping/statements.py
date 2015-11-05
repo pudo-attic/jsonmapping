@@ -114,21 +114,33 @@ class StatementsVisitor(SchemaVisitor):
             self.subject: node,
             '$schema': self.path,
             '$sources': [],
+            '$collections': [],
+            '$authors': [],
             '$attrcount': 0,
             '$linkcount': 0,
         }
-        for (p, o, t, src) in load(node):
-            prop = self.get_property(p)
-            if prop is None or o in path:
+        for stmt in load(node):
+            # p, o, t = stmt['predicate'], stmt['o']
+            prop = self.get_property(stmt['predicate'])
+            if prop is None or stmt['object'] in path:
                 continue
             obj['$attrcount'] += 1
-            if t == TYPE_LINK:
+            if stmt['type'] == TYPE_LINK:
                 obj['$linkcount'] += 1
 
-            if src not in obj['$sources']:
-                obj['$sources'].append(src)
+            if stmt.get('source') and \
+                    stmt.get('source') not in obj['$sources']:
+                obj['$sources'].append(stmt.get('source'))
 
-            value = prop.objectify(load, o, next_depth, sub_path)
+            if stmt.get('collection') and \
+                    stmt.get('collection') not in obj['$collections']:
+                obj['$collections'].append(stmt.get('collection'))
+
+            if stmt.get('author') and \
+                    stmt.get('author') not in obj['$authors']:
+                obj['$authors'].append(stmt.get('author'))
+
+            value = prop.objectify(load, stmt['object'], next_depth, sub_path)
             if value is None:
                 continue
 
