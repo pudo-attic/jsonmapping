@@ -53,18 +53,26 @@ class SchemaVisitor(object):
             return path
 
     @property
+    def inherited(self):
+        if not hasattr(self, '_inherited'):
+            self._inherited = []
+            for inheritance_rule in ('anyOf', 'allOf', 'oneOf'):
+                for schema in self.schema.get(inheritance_rule, []):
+                    visitor = self.cls(schema, self.resolver, name=self.name,
+                                       parent=self.parent)
+                    self._inherited.append(visitor)
+        return self._inherited
+
+    @property
     def properties(self):
         if not self.is_object:
             return []
 
         if not hasattr(self, '_properties'):
             self._properties = []
-            for inheritance_rule in ('anyOf', 'allOf', 'oneOf'):
-                for schema in self.schema.get(inheritance_rule, []):
-                    visitor = self.cls(schema, self.resolver, name=self.name,
-                                       parent=self.parent)
-                    for prop in visitor.properties:
-                        self._properties.append(prop)
+            for visitor in self.inherited:
+                for prop in visitor.properties:
+                    self._properties.append(prop)
 
             for name, schema in self.schema.get('properties', {}).items():
                 self._properties.append(self.cls(schema, self.resolver,
