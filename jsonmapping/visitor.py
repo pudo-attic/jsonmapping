@@ -44,6 +44,20 @@ class SchemaVisitor(object):
         return self.schema.get('title', self.name)
 
     @property
+    def plural(self):
+        return self.schema.get('plural', self.title)
+
+    @property
+    def inline(self):
+        if self.is_value:
+            return True
+        return self.schema.get('inline', False)
+
+    @property
+    def sort_index(self):
+        return self.schema.get('sortIndex', 0)
+
+    @property
     def path(self):
         if self.id is not None:
             return self.id
@@ -82,6 +96,9 @@ class SchemaVisitor(object):
                 self._properties.append(self.cls(schema, self.resolver,
                                                  name=name, parent=self))
 
+            self._properties = list(sorted(self._properties,
+                                           key=lambda v: v.sort_index,
+                                           reverse=True))
             # TODO: patternProperties - probably can't support them fully.
         return self._properties
 
@@ -94,3 +111,6 @@ class SchemaVisitor(object):
             self._items = self.cls(schema, self.resolver, name=self.name,
                                    parent=self)
         return self._items
+
+    def __repr__(self):
+        return '<SchemaVisitor(%r,%r)>' % (self.name, self.title)
