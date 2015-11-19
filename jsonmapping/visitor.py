@@ -40,6 +40,10 @@ class SchemaVisitor(object):
         return self.name == name
 
     @property
+    def title(self):
+        return self.schema.get('title', self.name)
+
+    @property
     def path(self):
         if self.id is not None:
             return self.id
