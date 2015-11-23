@@ -1,19 +1,6 @@
 from unittest import TestCase
-import unicodecsv
 
-from jsonmapping import Mapper
-
-from .util import resolver, fixture_uri, fixture_file
-
-
-def csv_mapper(fileobj, mapping, resolver=None, scope=None):
-    """ Given a CSV file object (fh), parse the file as a unicode CSV document,
-    iterate over all rows of the data and map them to a JSON schema using the
-    mapping instructions in ``mapping``. """
-    reader = unicodecsv.DictReader(fileobj)
-    for row in Mapper.apply_iter(reader, mapping, resolver=resolver,
-                                 scope=scope):
-        yield row
+from .util import resolver, fixture_uri, fixture_file, csv_mapper
 
 
 class MappingTestCase(TestCase):

@@ -4,6 +4,7 @@
   "title": "Person",
   "description": "A real person, alive or dead",
   "type": "object",
+  "graph": "node",
   "rdfSubject": "id",
   "properties": {
     "id": {

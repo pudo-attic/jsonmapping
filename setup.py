@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jsonmapping',
-    version='0.6.2',
+    version='0.7.0',
     description="Map flat data to structured JSON via a mapping.",
     long_description="",
     classifiers=[
@@ -34,6 +34,7 @@ setup(
         'normality',
         'unidecode',
         'jsonschema',
+        'networkx',
         'six'
     ],
     tests_require=[

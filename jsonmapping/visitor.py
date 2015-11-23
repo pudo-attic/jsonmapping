@@ -48,6 +48,13 @@ class SchemaVisitor(object):
         return self.schema.get('plural', self.title)
 
     @property
+    def graph(self):
+        """ This is used to infer the graph role of a particular schema.
+        It can either be 'edge' or 'node'. """
+        if self.is_object:
+            return self.schema.get('graph')
+
+    @property
     def inline(self):
         if self.is_value:
             return True

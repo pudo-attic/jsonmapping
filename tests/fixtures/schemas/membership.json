@@ -4,6 +4,7 @@
   "title": "Membership",
   "description": "A relationship between a member and an organization",
   "type": "object",
+  "graph": "edge",
   "properties": {
     "id": {
       "description": "The membership's unique identifier",
