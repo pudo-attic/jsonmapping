@@ -66,6 +66,8 @@ class StatementsVisitor(SchemaVisitor):
             # TODO: figure out if I ever want to check for reverse here.
             type_name = typecast.name(data)
             obj = typecast.stringify(type_name, data)
+            if obj is not None:
+                obj = obj.strip()
             yield (parent, self.predicate, obj, type_name)
 
     def _triplify_object(self, data, parent):
@@ -120,13 +122,15 @@ class StatementsVisitor(SchemaVisitor):
             '$linkcount': 0,
         }
         for stmt in load(node):
-            # p, o, t = stmt['predicate'], stmt['o']
             prop = self.get_property(stmt['predicate'])
-            if prop is None or stmt['object'] in path:
+            if prop is None:
                 continue
-            obj['$attrcount'] += 1
-            if stmt['type'] == TYPE_LINK:
-                obj['$linkcount'] += 1
+            if stmt['object'] in path and not prop.is_value:
+                continue
+            if prop.name not in obj:
+                obj['$attrcount'] += 1
+                if stmt['type'] == TYPE_LINK:
+                    obj['$linkcount'] += 1
 
             if stmt.get('source') and \
                     stmt.get('source') not in obj['$sources']:
