@@ -1,6 +1,10 @@
 from copy import deepcopy
 
 
+def property_sorter(prop):
+    return (prop.sort_index * -1, prop.name, prop.id)
+
+
 class SchemaVisitor(object):
     """ A schema visitor traverses a JSON schema with associated data and
     allows the user to perform any transformations on the data that they
@@ -94,18 +98,17 @@ class SchemaVisitor(object):
             return []
 
         if not hasattr(self, '_properties'):
-            self._properties = []
+            properties = {}
             for visitor in self.inherited:
                 for prop in visitor.properties:
-                    self._properties.append(prop)
+                    properties[prop.name] = prop
 
             for name, schema in self.schema.get('properties', {}).items():
-                self._properties.append(self.cls(schema, self.resolver,
-                                                 name=name, parent=self))
+                properties[name] = self.cls(schema, self.resolver,
+                                            name=name, parent=self)
 
-            self._properties = list(sorted(self._properties,
-                                           key=lambda v: v.sort_index,
-                                           reverse=True))
+            self._properties = list(sorted(properties.values(),
+                                           key=property_sorter))
             # TODO: patternProperties - probably can't support them fully.
         return self._properties
 
