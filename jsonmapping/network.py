@@ -37,6 +37,8 @@ class Network(object):
 
     def _simple_object(self, entity, visitor):
         data = {}
+        if visitor.id:
+            data['$schema'] = visitor.id
         for prop in visitor.properties:
             if prop.is_value and prop.name in entity:
                 data[prop.name] = entity.get(prop.name)
@@ -76,6 +78,7 @@ class Network(object):
             if visitor.graph == GRAPH_EDGE:
                 edge = self._get_nodes(entity, visitor, parent=parent)
                 if edge is not None and entity_id not in self.edge_ids:
+                    self.edge_ids.add(entity_id)
                     self.graph.add_edge(edge[0], edge[1], attr_dict=attrs)
 
             # Recurse down the entity
