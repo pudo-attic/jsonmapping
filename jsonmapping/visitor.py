@@ -26,9 +26,22 @@ class SchemaVisitor(object):
         self.schema = schema
         self.id = schema.get('id')
 
-        self.types = schema.get('type', 'object')
+        self.inherited = []
+        for inheritance_rule in ('anyOf', 'allOf', 'oneOf'):
+            for schema in self.schema.get(inheritance_rule, []):
+                visitor = self.cls(schema, self.resolver, name=self.name,
+                                   parent=self.parent)
+                self.inherited.append(visitor)
+
+        self.types = schema.get('type')
         if not isinstance(self.types, list):
             self.types = [self.types]
+        for visitor in self.inherited:
+            for type_ in visitor.types:
+                if type_ not in self.types:
+                    self.types.append(type_)
+        self.types = [t for t in self.types if t is not None]
+
         self.is_object = 'object' in self.types
         self.is_array = 'array' in self.types
         self.is_value = not (self.is_object or self.is_array)
@@ -80,17 +93,6 @@ class SchemaVisitor(object):
                 else:
                     return path + '/' + self.name
             return path
-
-    @property
-    def inherited(self):
-        if not hasattr(self, '_inherited'):
-            self._inherited = []
-            for inheritance_rule in ('anyOf', 'allOf', 'oneOf'):
-                for schema in self.schema.get(inheritance_rule, []):
-                    visitor = self.cls(schema, self.resolver, name=self.name,
-                                       parent=self.parent)
-                    self._inherited.append(visitor)
-        return self._inherited
 
     @property
     def properties(self):
