@@ -1,7 +1,7 @@
 import os
 import json
 import urllib
-import unicodecsv
+import csv
 
 from jsonschema import RefResolver  # noqa
 
@@ -11,13 +11,13 @@ BASE_URI = 'http://www.popoloproject.com/schemas'
 
 def fixture_file(path):
     file_name = os.path.join(fixtures_dir, path)
-    return open(file_name, 'rb')
+    return open(file_name, 'r')
 
 
 def fixture_uri(path):
     base = os.path.join(fixtures_dir, path)
-    base_uri = 'file://' + urllib.pathname2url(base)
-    with open(base, 'rb') as fh:
+    base_uri = 'file://' + urllib.request.pathname2url(base)
+    with open(base, 'r') as fh:
         return json.load(fh), base_uri
 
 
@@ -26,7 +26,7 @@ def create_resolver():
     schemas = os.path.join(fixtures_dir, 'schemas')
     for fn in os.listdir(schemas):
         path = os.path.join(schemas, fn)
-        with open(path, 'rb') as fh:
+        with open(path, 'r') as fh:
             data = json.load(fh)
             resolver.store[data.get('id')] = data
     return resolver
@@ -40,7 +40,7 @@ def csv_mapper(fileobj, mapping, resolver=None, scope=None):
     iterate over all rows of the data and map them to a JSON schema using the
     mapping instructions in ``mapping``. """
     from jsonmapping import Mapper
-    reader = unicodecsv.DictReader(fileobj)
+    reader = csv.DictReader(fileobj)
     for row in Mapper.apply_iter(reader, mapping, resolver=resolver,
                                  scope=scope):
         yield row

@@ -26,5 +26,5 @@ class MappingTestCase(TestCase):
         assert len(mapped) == 397, len(mapped)
         row0 = mapped[0]
         assert isinstance(row0, dict), row0
-        print row0
+        print(row0)
         assert row0['id'].startswith('popolo:person:'), row0
